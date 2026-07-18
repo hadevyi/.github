@@ -1,0 +1,56 @@
+name: Reusable Astro Pages deploy
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 빌드에 사용할 Node.js 버전
+        required: false
+        type: string
+        default: "24"
+      public-ga-id:
+        description: Google Analytics 공개 식별자
+        required: false
+        type: string
+        default: ""
+      public-google-site-verification:
+        description: Google 사이트 확인 공개 값
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_GA_ID: ${{ inputs.public-ga-id }}
+      PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ inputs.public-google-site-verification }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install, build, and upload site
+        uses: withastro/action@v6
+        with:
+          path: .
+          node-version: ${{ inputs.node-version }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
