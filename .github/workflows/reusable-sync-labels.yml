@@ -38,9 +38,10 @@ jobs:
             ];
             const profileLabels = {
               governance: [
-                { name: '영역: 템플릿', color: '006B75', description: '이슈와 PR 작성 양식' },
-                { name: '영역: 워크플로', color: '0E8A16', description: '공통 자동화와 재사용 워크플로' },
-                { name: '영역: 라벨', color: '57AB5A', description: '공통 라벨 체계와 동기화 기준' }
+                { name: '중앙: 템플릿', color: '006B75', description: '공통 이슈와 PR 작성 양식' },
+                { name: '중앙: 워크플로', color: '0E8A16', description: '공통 자동화와 재사용 워크플로' },
+                { name: '중앙: 라벨 체계', color: '57AB5A', description: '공통 라벨 정의와 동기화 기준' },
+                { name: '중앙: 저장소 프로필', color: '6F42C1', description: '저장소 유형과 공통 설정 적용 기준' }
               ],
               project: [
                 { name: '영역: 백엔드', color: '006B75', description: '서버, API와 비즈니스 로직' },
@@ -78,7 +79,12 @@ jobs:
               throw new Error(`지원하지 않는 라벨 프로필입니다: ${profile}`);
             }
 
-            const labels = [...commonLabels, ...profileLabels[profile]];
+            const governanceCommonLabels = commonLabels.filter(({ name }) => (
+              name !== '유형: 콘텐츠' && name !== '유형: 학습'
+            ));
+            const labels = profile === 'governance'
+              ? [...governanceCommonLabels, ...profileLabels[profile]]
+              : [...commonLabels, ...profileLabels[profile]];
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
