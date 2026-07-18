@@ -1,0 +1,105 @@
+name: Reusable shared label sync
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: 저장소 유형에 맞는 추가 라벨 프로필
+        required: false
+        type: string
+        default: project
+
+permissions:
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update shared labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const profile = '${{ inputs.profile }}';
+            const commonLabels = [
+              { name: '유형: 기능', color: '0969DA', description: '새로운 동작이나 결과물을 추가하는 작업' },
+              { name: '유형: 개선', color: '218BFF', description: '기존 동작의 품질과 사용성을 높이는 작업' },
+              { name: '유형: 버그', color: '0550AE', description: '예상과 다르게 동작하는 문제를 수정하는 작업' },
+              { name: '유형: 운영', color: '1F6FEB', description: '배포, 자동화, 환경과 의존성을 관리하는 작업' },
+              { name: '유형: 문서', color: '54AEFF', description: 'README, 가이드와 운영 규칙을 정리하는 작업' },
+              { name: '유형: 콘텐츠', color: '80CCFF', description: '외부에 공개할 글, 이력과 소개 내용을 작성하는 작업' },
+              { name: '유형: 학습', color: 'B6E3FF', description: '기술을 조사하고 실습 결과를 정리하는 작업' },
+              { name: '중요도: 높음', color: 'B60205', description: '먼저 처리해야 하거나 다른 작업을 막는 항목' },
+              { name: '중요도: 보통', color: 'D93F0B', description: '현재 계획에 포함된 일반 항목' },
+              { name: '중요도: 낮음', color: 'FBCA04', description: '일정과 무관한 선택적 항목' },
+              { name: '난이도: 어려움', color: '5319E7', description: '조사와 설계 또는 여러 단계의 검증이 필요한 작업' },
+              { name: '난이도: 보통', color: '8250DF', description: '기존 경험과 일부 확인으로 진행할 수 있는 작업' },
+              { name: '난이도: 쉬움', color: 'C5B3E6', description: '범위와 해결 방법이 명확한 작업' }
+            ];
+            const profileLabels = {
+              governance: [
+                { name: '영역: 템플릿', color: '006B75', description: '이슈와 PR 작성 양식' },
+                { name: '영역: 워크플로', color: '0E8A16', description: '공통 자동화와 재사용 워크플로' },
+                { name: '영역: 라벨', color: '57AB5A', description: '공통 라벨 체계와 동기화 기준' }
+              ],
+              project: [
+                { name: '영역: 백엔드', color: '006B75', description: '서버, API와 비즈니스 로직' },
+                { name: '영역: 프론트엔드', color: '008672', description: '사용자 화면과 클라이언트 동작' },
+                { name: '영역: 데이터', color: '0E8A16', description: '데이터 모델, 저장과 조회 처리' },
+                { name: '영역: 인프라', color: '1A7F37', description: '실행 환경, 네트워크와 배포 기반' },
+                { name: '영역: 인공지능', color: '57AB5A', description: '인공지능 모델과 활용 기능' }
+              ],
+              profile: [
+                { name: '영역: 프로필', color: '006B75', description: 'GitHub 프로필 소개와 구성' },
+                { name: '영역: 통계', color: '0E8A16', description: '활동 지표와 통계 표현' },
+                { name: '영역: 자동화', color: '57AB5A', description: '프로필 생성과 갱신 자동화' }
+              ],
+              branding: [
+                { name: '영역: UI/UX', color: '006B75', description: '화면 구성, 반응형과 상호작용' },
+                { name: '영역: 검색/공유', color: '0E8A16', description: '검색 노출, 메타데이터와 공유 정보' },
+                { name: '영역: 공통 시스템', color: '57AB5A', description: '연결된 사이트가 함께 사용하는 디자인과 설정' }
+              ],
+              'branding-document': [
+                { name: '영역: UI/UX', color: '006B75', description: '화면 구성, 반응형과 상호작용' },
+                { name: '영역: 검색/공유', color: '0E8A16', description: '검색 노출, 메타데이터와 공유 정보' },
+                { name: '영역: 공통 시스템', color: '57AB5A', description: '연결된 사이트가 함께 사용하는 디자인과 설정' },
+                { name: '출력: 웹', color: 'DDE7F0', description: '브라우저 화면에서 제공되는 결과' },
+                { name: '출력: PDF', color: 'BFD4EA', description: 'PDF 내보내기와 인쇄 결과' },
+                { name: '언어: 국문', color: 'D1D5DA', description: '한국어 콘텐츠와 화면' },
+                { name: '언어: 영문', color: '959DA5', description: '영어 콘텐츠와 화면' }
+              ],
+              learning: [
+                { name: '학습 자료: 공식 문서', color: 'F8D49D', description: '공식 문서를 기반으로 진행하는 학습' },
+                { name: '학습 자료: 도서', color: 'F9E2AF', description: '도서를 기반으로 진행하는 학습' },
+                { name: '학습 자료: 온라인 강의', color: 'FEF2C0', description: '온라인 강의를 기반으로 진행하는 학습' }
+              ]
+            };
+            if (!Object.hasOwn(profileLabels, profile)) {
+              throw new Error(`지원하지 않는 라벨 프로필입니다: ${profile}`);
+            }
+
+            const labels = [...commonLabels, ...profileLabels[profile]];
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const existingLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner,
+              repo,
+              per_page: 100
+            });
+            const existingNames = new Set(existingLabels.map(({ name }) => name));
+
+            for (const label of labels) {
+              if (existingNames.has(label.name)) {
+                await github.rest.issues.updateLabel({
+                  owner,
+                  repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                continue;
+              }
+
+              await github.rest.issues.createLabel({ owner, repo, ...label });
+            }

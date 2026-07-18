@@ -1,0 +1,16 @@
+name: Sync shared labels
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "8 9 13 * *"
+      timezone: "Asia/Seoul"
+
+permissions:
+  issues: write
+
+jobs:
+  sync:
+    uses: ./.github/workflows/reusable-sync-labels.yml
+    with:
+      profile: governance
