@@ -18,10 +18,9 @@
 
 | 문서 | 내용 |
 |---|---|
-| [라벨 체계](docs/labels.md) | 공통 라벨, 프로필별 라벨, 색상, 적용 저장소와 전환 기준 |
+| [라벨 체계](docs/labels.md) | 공통 라벨, 프로필별 라벨, 색상과 전환 기준 |
 | [이슈·PR 템플릿](docs/issue-templates.md) | 양식별 용도, 라벨 선택과 상속 규칙 |
 | [재사용 워크플로](docs/workflows.md) | 호출 방법, 권한, 실행 주기와 적용 순서 |
-| [저장소 적용 현황](docs/repositories.md) | 저장소별 프로필, 호출 워크플로, 기본 브랜치와 제외 기준 |
 
 ## 저장소 구조
 
@@ -31,8 +30,7 @@
 ├── docs/
 │   ├── labels.md
 │   ├── issue-templates.md
-│   ├── workflows.md
-│   └── repositories.md
+│   └── workflows.md
 └── .github/
     ├── ISSUE_TEMPLATE/
     ├── PULL_REQUEST_TEMPLATE.md
@@ -45,6 +43,5 @@
 - 저장소별 변수, Secret, 실행 이벤트와 권한은 호출 저장소에서 관리합니다.
 - `.node-version`, `.vscode`, 빌드 스크립트와 저장소 전용 라벨은 중앙화하지 않습니다.
 - 중앙 워크플로를 먼저 배포한 뒤 각 저장소의 호출 워크플로를 반영합니다.
-- 비공개 과거 프로젝트인 `ETRI_Intern`에는 중앙 호출 워크플로를 추가하지 않습니다.
-- `ZB-BE-DS-ALGO`, 삭제 예정 저장소와 Fork 저장소에는 호출 워크플로를 추가하지 않습니다.
+- 아카이브, 삭제 예정, Fork 저장소에는 중앙 호출 워크플로를 추가하지 않습니다.
 - 공개 저장소의 기본 템플릿 상속 여부와 호출 워크플로 적용 여부는 별개입니다.

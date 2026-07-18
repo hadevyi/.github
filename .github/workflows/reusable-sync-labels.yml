@@ -55,17 +55,22 @@ jobs:
               ],
               branding: [
                 { name: '영역: UI/UX', color: '006B75', description: '화면 구성, 반응형과 상호작용' },
-                { name: '영역: 검색/공유', color: '0E8A16', description: '검색 노출, 메타데이터와 공유 정보' },
-                { name: '영역: 공통 시스템', color: '57AB5A', description: '연결된 사이트가 함께 사용하는 디자인과 설정' }
+                { name: '영역: 검색 노출', color: '0E8A16', description: '검색 콘솔, 사이트맵, robots와 구조화 데이터' },
+                { name: '영역: 공유 메타', color: '1A7F37', description: 'Open Graph, Twitter 카드와 링크 미리보기' },
+                { name: '영역: 분석', color: '6F42C1', description: 'Google Analytics, 이벤트 측정과 방문 통계' },
+                { name: '영역: 배포/운영', color: 'BF8700', description: 'GitHub Pages, 배포 자동화와 환경 변수' },
+                { name: '영역: 공통 시스템', color: '57AB5A', description: '연결된 사이트가 함께 사용하는 디자인과 설정' },
+                { name: '영역: 다국어', color: 'A371F7', description: '국문과 영문 콘텐츠, 언어 전환 지원' }
               ],
               'branding-document': [
                 { name: '영역: UI/UX', color: '006B75', description: '화면 구성, 반응형과 상호작용' },
-                { name: '영역: 검색/공유', color: '0E8A16', description: '검색 노출, 메타데이터와 공유 정보' },
+                { name: '영역: 공유 메타', color: '1A7F37', description: 'Open Graph, Twitter 카드와 링크 미리보기' },
+                { name: '영역: 분석', color: '6F42C1', description: 'Google Analytics, 이벤트 측정과 방문 통계' },
+                { name: '영역: 배포/운영', color: 'BF8700', description: 'GitHub Pages, 배포 자동화와 환경 변수' },
                 { name: '영역: 공통 시스템', color: '57AB5A', description: '연결된 사이트가 함께 사용하는 디자인과 설정' },
+                { name: '영역: 다국어', color: 'A371F7', description: '국문과 영문 콘텐츠, 언어 전환 지원' },
                 { name: '출력: 웹', color: 'DDE7F0', description: '브라우저 화면에서 제공되는 결과' },
-                { name: '출력: PDF', color: 'BFD4EA', description: 'PDF 내보내기와 인쇄 결과' },
-                { name: '언어: 국문', color: 'D1D5DA', description: '한국어 콘텐츠와 화면' },
-                { name: '언어: 영문', color: '959DA5', description: '영어 콘텐츠와 화면' }
+                { name: '출력: PDF', color: 'BFD4EA', description: 'PDF 내보내기와 인쇄 결과' }
               ],
               learning: [
                 { name: '학습 자료: 공식 문서', color: 'F8D49D', description: '공식 문서를 기반으로 진행하는 학습' },
