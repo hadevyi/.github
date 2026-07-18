@@ -16,7 +16,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Create or update shared labels
+      - name: Synchronize shared labels
         uses: actions/github-script@v7
         with:
           script: |
@@ -88,6 +88,7 @@ jobs:
               per_page: 100
             });
             const existingNames = new Set(existingLabels.map(({ name }) => name));
+            const desiredNames = new Set(labels.map(({ name }) => name));
 
             for (const label of labels) {
               if (existingNames.has(label.name)) {
@@ -102,4 +103,16 @@ jobs:
               }
 
               await github.rest.issues.createLabel({ owner, repo, ...label });
+            }
+
+            for (const { name } of existingLabels) {
+              if (desiredNames.has(name)) {
+                continue;
+              }
+
+              await github.rest.issues.deleteLabel({
+                owner,
+                repo,
+                name
+              });
             }
