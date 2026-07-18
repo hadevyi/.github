@@ -183,6 +183,11 @@ jobs:
               )?.name ?? null;
             }
 
+            function sameStatus(left, right) {
+              return String(left ?? '').trim().toLocaleLowerCase() ===
+                String(right ?? '').trim().toLocaleLowerCase();
+            }
+
             async function addProjectItem(issueId) {
               const response = await github.graphql(`
                 mutation($project: ID!, $content: ID!) {
@@ -203,10 +208,15 @@ jobs:
             async function setStatus(itemId, statusField, statusName) {
               const option = statusField.options.find(
                 (candidate) => candidate.name === statusName
+              ) ?? statusField.options.find(
+                (candidate) => sameStatus(candidate.name, statusName)
               );
 
               if (!option) {
-                throw new Error(`상태 옵션을 찾을 수 없습니다: ${statusName}`);
+                const available = statusField.options.map((candidate) => candidate.name).join(', ');
+                throw new Error(
+                  `상태 옵션을 찾을 수 없습니다: ${statusName}. 사용 가능한 상태: ${available}`
+                );
               }
 
               await github.graphql(`
@@ -241,7 +251,7 @@ jobs:
                 ? todoStatus
                 : inProgressStatus;
 
-              if (item && ['comment', 'push'].includes(mode) && currentStatus(item) === doneStatus) {
+              if (item && ['comment', 'push'].includes(mode) && sameStatus(currentStatus(item), doneStatus)) {
                 core.info(`#${issue.number}은(는) ${doneStatus} 상태이므로 변경하지 않습니다.`);
                 return;
               }
@@ -262,7 +272,7 @@ jobs:
                 }
               }
 
-              if (!added && currentStatus(item) === desiredStatus) {
+              if (!added && sameStatus(currentStatus(item), desiredStatus)) {
                 core.info(`#${issue.number}은(는) 이미 ${desiredStatus} 상태입니다.`);
                 return;
               }
