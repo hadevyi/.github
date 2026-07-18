@@ -1,0 +1,35 @@
+name: Reusable issue auto assignment
+
+on:
+  workflow_call:
+    inputs:
+      assignee:
+        description: 새 이슈를 배정할 GitHub 사용자
+        required: false
+        type: string
+        default: hadevyi
+
+permissions:
+  issues: write
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign default owner
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const assignee = '${{ inputs.assignee }}';
+            const currentAssignees = context.payload.issue.assignees.map(({ login }) => login);
+
+            if (currentAssignees.includes(assignee)) {
+              return;
+            }
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              assignees: [assignee]
+            });
