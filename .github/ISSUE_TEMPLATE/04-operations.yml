@@ -1,0 +1,72 @@
+name: 배포·운영
+description: 배포, 자동화, 분석, 검색 색인과 운영 설정을 관리합니다.
+title: "[배포] "
+labels:
+  - "유형: 운영"
+assignees:
+  - hadevyi
+body:
+  - type: dropdown
+    id: operation-type
+    attributes:
+      label: 작업 유형
+      options:
+        - 빌드·배포
+        - GitHub Actions 자동화
+        - 분석·모니터링
+        - 검색 색인·사이트맵
+        - 도메인·호스팅
+        - 의존성·런타임
+        - 기타 운영 설정
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 목적
+      description: 해결할 운영 문제와 기대 결과를 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: 현재 상태
+      description: 현재 설정, 오류, 실행 결과와 영향을 받는 저장소를 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 변경 범위
+      description: 수정할 워크플로, 설정, 환경과 제외 범위를 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: 위험 요소와 복구 방법
+      description: 실패 가능성, 배포 영향, 원복 방법이 있다면 적어 주세요.
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: 체크리스트
+      placeholder: |
+        - [ ] 설정 변경
+        - [ ] 로컬 검증
+        - [ ] Actions 실행 확인
+        - [ ] 배포 결과 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      description: 빌드, 배포, 모니터링 등 확인해야 할 결과를 적어 주세요.
+    validations:
+      required: true

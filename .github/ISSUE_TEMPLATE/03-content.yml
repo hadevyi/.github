@@ -1,0 +1,75 @@
+name: 콘텐츠 작성·수정
+description: 글, 이력, 포트폴리오, 설명 문구와 메타데이터를 관리합니다.
+title: "[콘텐츠] "
+labels:
+  - "유형: 콘텐츠"
+assignees:
+  - hadevyi
+body:
+  - type: dropdown
+    id: content-type
+    attributes:
+      label: 콘텐츠 유형
+      options:
+        - 블로그 글
+        - 경험 기록
+        - 이력서
+        - 포트폴리오
+        - 사이트 안내 문구
+        - 메타데이터·검색 정보
+        - 기타
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 목적과 독자
+      description: 누구에게 무엇을 전달할 콘텐츠인지 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: source
+    attributes:
+      label: 사실 근거와 원문
+      description: 참고할 기존 자료와 유지해야 할 사실을 적어 주세요.
+
+  - type: textarea
+    id: changes
+    attributes:
+      label: 작성·수정 범위
+      description: 새로 작성하거나 수정할 항목을 적어 주세요.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: outputs
+    attributes:
+      label: 함께 확인할 출력
+      options:
+        - label: 국문
+        - label: 영문
+        - label: 웹 화면
+        - label: PDF 또는 인쇄 화면
+        - label: 검색·공유 메타데이터
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: 체크리스트
+      placeholder: |
+        - [ ] 사실관계 확인
+        - [ ] 문장 작성·윤문
+        - [ ] 화면 반영
+        - [ ] 출력 검증
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      description: 콘텐츠와 출력 결과의 완료 조건을 적어 주세요.
+    validations:
+      required: true

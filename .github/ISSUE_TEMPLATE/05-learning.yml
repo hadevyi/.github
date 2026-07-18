@@ -1,0 +1,63 @@
+name: 학습·조사
+description: 기술 학습, 비교 조사, 실험과 결과 정리를 추적합니다.
+title: "[학습] "
+labels:
+  - "유형: 학습"
+assignees:
+  - hadevyi
+body:
+  - type: textarea
+    id: topic
+    attributes:
+      label: 학습 주제
+      description: 학습하거나 조사할 기술과 범위를 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: 해결할 질문
+      description: 학습을 통해 답하려는 질문이나 판단할 내용을 적어 주세요.
+      placeholder: 무엇을 이해하거나 결정하기 위한 학습인가요?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: 현재 이해 수준
+      description: 이미 알고 있는 내용과 부족한 부분을 적어 주세요.
+
+  - type: textarea
+    id: plan
+    attributes:
+      label: 학습·검증 계획
+      description: 문서 확인, 예제 구현, 비교 실험 등 진행 방법을 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: sources
+    attributes:
+      label: 참고 자료
+      description: 공식 문서, 서적, 강의, 논문 등의 출처를 적어 주세요.
+
+  - type: checkboxes
+    id: output-type
+    attributes:
+      label: 결과물
+      options:
+        - label: 학습 노트
+        - label: 예제 코드 또는 실험 저장소
+        - label: 블로그 글
+        - label: 발표·강의 자료
+        - label: 프로젝트 적용
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      description: 무엇을 설명하거나 구현할 수 있으면 완료인지 적어 주세요.
+    validations:
+      required: true

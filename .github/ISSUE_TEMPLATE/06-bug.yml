@@ -1,0 +1,77 @@
+name: 버그 보고
+description: 재현 가능한 오류와 예상 동작을 기록합니다.
+title: "[버그] "
+labels:
+  - "유형: 버그"
+assignees:
+  - hadevyi
+body:
+  - type: markdown
+    attributes:
+      value: 같은 증상의 열린 이슈가 있는지 먼저 확인해 주세요.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 문제 요약
+      description: 발생한 문제를 짧고 명확하게 설명해 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      placeholder: |
+        1. 특정 페이지로 이동
+        2. 특정 동작 수행
+        3. 오류 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 예상 동작
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 실제 동작
+      description: 실제 결과와 오류 메시지를 적어 주세요.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: 영향 범위
+      options:
+        - 일부 표현 또는 스타일 문제
+        - 특정 기능 사용에 영향
+        - 주요 사용자 흐름 차단
+        - 빌드 또는 배포 실패
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 확인 환경
+      description: 브라우저, 화면 크기, 운영체제, 배포 환경 등을 적어 주세요.
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 참고 자료
+      description: 스크린샷, 로그, 관련 링크가 있다면 첨부해 주세요.
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      description: 재현 불가, 테스트 통과, 배포 확인 등 검증 기준을 적어 주세요.
+    validations:
+      required: true
