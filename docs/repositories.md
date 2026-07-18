@@ -11,10 +11,8 @@
 | `experience` | `main` | `branding` | 적용 | 적용 |
 | `portfolio` | `main` | `branding-document` | 적용 | 적용 |
 | `resume` | `main` | `branding-document` | 적용 | 적용 |
-| `Algorithms-Problem-Solving` | `main` | `learning` | 적용 | 해당 없음 |
-| `English-Word-Study` | `master` | `project` | 적용 | 해당 없음 |
+| `Algorithms-Problem-Solving` | `main` | `algorithm` | 적용 | 해당 없음 |
 | `Learn-New-Thing` | `main` | `learning` | 적용 | 해당 없음 |
-| `O-to-I` | `master` | `project` | 적용 | 해당 없음 |
 
 라벨 동기화는 모든 관리 대상 저장소에서 매월 13일 오전 9시 8분에 실행하며 수동 실행도 지원합니다.
 
@@ -23,6 +21,8 @@
 | 저장소 | 제외 사유 | 중앙 기본 템플릿 |
 |---|---|---|
 | `ETRI_Intern` | 비공개 과거 프로젝트 | 자동 상속 안 됨 |
+| `English-Word-Study` | 아카이브 보관용 대학 프로젝트 | 공개 저장소지만 중앙화 대상 제외 |
+| `O-to-I` | 아카이브 보관용 대학 프로젝트 | 공개 저장소지만 중앙화 대상 제외 |
 | `ZB-BE-DS-ALGO` | 향후 학습 저장소로 통합 예정 | 공개 저장소이므로 자체 템플릿 제거 후 상속 가능 |
 | `Project-With-AI` | 삭제 예정 | 반영하지 않음 |
 | `productive-box` | Fork | 반영하지 않음 |

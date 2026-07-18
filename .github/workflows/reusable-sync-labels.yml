@@ -22,13 +22,6 @@ jobs:
           script: |
             const profile = '${{ inputs.profile }}';
             const commonLabels = [
-              { name: '유형: 기능', color: '0969DA', description: '새로운 동작이나 결과물을 추가하는 작업' },
-              { name: '유형: 개선', color: '218BFF', description: '기존 동작의 품질과 사용성을 높이는 작업' },
-              { name: '유형: 버그', color: '0550AE', description: '예상과 다르게 동작하는 문제를 수정하는 작업' },
-              { name: '유형: 운영', color: '1F6FEB', description: '배포, 자동화, 환경과 의존성을 관리하는 작업' },
-              { name: '유형: 문서', color: '54AEFF', description: 'README, 가이드와 운영 규칙을 정리하는 작업' },
-              { name: '유형: 콘텐츠', color: '80CCFF', description: '외부에 공개할 글, 이력과 소개 내용을 작성하는 작업' },
-              { name: '유형: 학습', color: 'B6E3FF', description: '기술을 조사하고 실습 결과를 정리하는 작업' },
               { name: '중요도: 높음', color: 'B60205', description: '먼저 처리해야 하거나 다른 작업을 막는 항목' },
               { name: '중요도: 보통', color: 'D93F0B', description: '현재 계획에 포함된 일반 항목' },
               { name: '중요도: 낮음', color: 'FBCA04', description: '일정과 무관한 선택적 항목' },
@@ -44,6 +37,11 @@ jobs:
                 { name: '중앙: 저장소 프로필', color: '6F42C1', description: '저장소 유형과 공통 설정 적용 기준' }
               ],
               project: [
+                { name: '유형: 기능', color: '0969DA', description: '새로운 동작이나 결과물을 추가하는 작업' },
+                { name: '유형: 개선', color: '218BFF', description: '기존 동작의 품질과 사용성을 높이는 작업' },
+                { name: '유형: 버그', color: '0550AE', description: '예상과 다르게 동작하는 문제를 수정하는 작업' },
+                { name: '유형: 운영', color: '1F6FEB', description: '배포, 자동화, 환경과 의존성을 관리하는 작업' },
+                { name: '유형: 문서', color: '54AEFF', description: 'README, 가이드와 운영 규칙을 정리하는 작업' },
                 { name: '영역: 백엔드', color: '006B75', description: '서버, API와 비즈니스 로직' },
                 { name: '영역: 프론트엔드', color: '008672', description: '사용자 화면과 클라이언트 동작' },
                 { name: '영역: 데이터', color: '0E8A16', description: '데이터 모델, 저장과 조회 처리' },
@@ -73,18 +71,22 @@ jobs:
                 { name: '학습 자료: 공식 문서', color: 'F8D49D', description: '공식 문서를 기반으로 진행하는 학습' },
                 { name: '학습 자료: 도서', color: 'F9E2AF', description: '도서를 기반으로 진행하는 학습' },
                 { name: '학습 자료: 온라인 강의', color: 'FEF2C0', description: '온라인 강의를 기반으로 진행하는 학습' }
+              ],
+              algorithm: [
+                { name: '분류: 정렬', color: '8250DF', description: '정렬 기준과 순서 재배치를 다루는 문제' },
+                { name: '분류: 탐색', color: '0969DA', description: '탐색 범위와 조건을 줄여 답을 찾는 문제' },
+                { name: '분류: 그래프', color: '1F883D', description: '정점과 간선 관계, 탐색과 경로를 다루는 문제' },
+                { name: '분류: 완전 탐색', color: 'BF8700', description: '가능한 경우를 열거해 답을 찾는 문제' },
+                { name: '분류: 분할 정복', color: 'CF4A8A', description: '문제를 작은 단위로 나누어 해결하는 문제' },
+                { name: '분류: 동적 계획법', color: '6F42C1', description: '중복 부분 문제의 결과를 저장해 해결하는 문제' },
+                { name: '분류: 탐욕법', color: '9A6700', description: '현재 단계의 최선 선택으로 답을 구성하는 문제' }
               ]
             };
             if (!Object.hasOwn(profileLabels, profile)) {
               throw new Error(`지원하지 않는 라벨 프로필입니다: ${profile}`);
             }
 
-            const governanceCommonLabels = commonLabels.filter(({ name }) => (
-              name !== '유형: 콘텐츠' && name !== '유형: 학습'
-            ));
-            const labels = profile === 'governance'
-              ? [...governanceCommonLabels, ...profileLabels[profile]]
-              : [...commonLabels, ...profileLabels[profile]];
+            const labels = [...commonLabels, ...profileLabels[profile]];
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;

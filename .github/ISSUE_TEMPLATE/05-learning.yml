@@ -1,8 +1,6 @@
 name: 학습·조사
 description: 기술 학습, 비교 조사, 실험과 결과 정리를 추적합니다.
 title: "[학습] "
-labels:
-  - "유형: 학습"
 assignees:
   - hadevyi
 body:

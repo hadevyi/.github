@@ -1,8 +1,6 @@
 name: 콘텐츠 작성·수정
 description: 글, 이력, 포트폴리오, 설명 문구와 메타데이터를 관리합니다.
 title: "[콘텐츠] "
-labels:
-  - "유형: 콘텐츠"
 assignees:
   - hadevyi
 body:

@@ -1,8 +1,6 @@
 name: 배포·운영
 description: 배포, 자동화, 분석, 검색 색인과 운영 설정을 관리합니다.
 title: "[배포] "
-labels:
-  - "유형: 운영"
 assignees:
   - hadevyi
 body:

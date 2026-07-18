@@ -1,8 +1,6 @@
 name: 기능 개발·개선
 description: 새로운 기능을 구현하거나 기존 동작을 개선합니다.
 title: "[기능] "
-labels:
-  - "유형: 기능"
 assignees:
   - hadevyi
 body:
