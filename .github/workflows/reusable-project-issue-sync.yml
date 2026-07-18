@@ -1,0 +1,324 @@
+name: Reusable Project issue sync
+
+on:
+  workflow_call:
+    inputs:
+      project_id:
+        description: GraphQL ProjectV2 ID (PVT_로 시작하는 값)
+        required: true
+        type: string
+      mode:
+        description: opened, reopened, comment, push 중 하나
+        required: true
+        type: string
+      issue_number:
+        description: issues 또는 issue_comment 이벤트의 이슈 번호
+        required: false
+        type: string
+        default: ''
+      is_pull_request:
+        description: issue_comment 대상이 Pull Request인지 여부
+        required: false
+        type: boolean
+        default: false
+      commit_messages:
+        description: push 이벤트의 commits JSON 배열
+        required: false
+        type: string
+        default: '[]'
+      status_field_name:
+        description: Project의 상태 단일 선택 필드 이름
+        required: false
+        type: string
+        default: Status
+      todo_status:
+        description: 생성 또는 재오픈 시 설정할 상태 이름
+        required: false
+        type: string
+        default: Todo
+      in_progress_status:
+        description: 댓글 또는 참조 커밋 시 설정할 상태 이름
+        required: false
+        type: string
+        default: In Progress
+      done_status:
+        description: 댓글과 참조 커밋이 변경하지 않아야 하는 종료 상태 이름
+        required: false
+        type: string
+        default: Done
+    secrets:
+      projects_token:
+        description: Project 읽기·쓰기 권한이 있는 PAT 또는 GitHub App 토큰
+        required: true
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Synchronize issue with Project
+        uses: actions/github-script@v7
+        env:
+          PROJECT_ID: ${{ inputs.project_id }}
+          MODE: ${{ inputs.mode }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          IS_PULL_REQUEST: ${{ inputs.is_pull_request }}
+          COMMIT_MESSAGES: ${{ inputs.commit_messages }}
+          STATUS_FIELD_NAME: ${{ inputs.status_field_name }}
+          TODO_STATUS: ${{ inputs.todo_status }}
+          IN_PROGRESS_STATUS: ${{ inputs.in_progress_status }}
+          DONE_STATUS: ${{ inputs.done_status }}
+        with:
+          github-token: ${{ secrets.projects_token }}
+          script: |
+            const projectId = process.env.PROJECT_ID;
+            const mode = process.env.MODE;
+            const statusFieldName = process.env.STATUS_FIELD_NAME;
+            const todoStatus = process.env.TODO_STATUS;
+            const inProgressStatus = process.env.IN_PROGRESS_STATUS;
+            const doneStatus = process.env.DONE_STATUS;
+            const { owner, repo } = context.repo;
+
+            if (!['opened', 'reopened', 'comment', 'push'].includes(mode)) {
+              core.setFailed(`지원하지 않는 Project 동기화 모드입니다: ${mode}`);
+              return;
+            }
+
+            if (mode === 'comment' && process.env.IS_PULL_REQUEST === 'true') {
+              core.info('Pull Request 댓글은 이슈 상태 변경 대상이 아닙니다.');
+              return;
+            }
+
+            const projectQuery = `
+              query($project: ID!, $cursor: String) {
+                node(id: $project) {
+                  ... on ProjectV2 {
+                    fields(first: 100) {
+                      nodes {
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                    items(first: 100, after: $cursor) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                        }
+                        fieldValues(first: 20) {
+                          nodes {
+                            ... on ProjectV2ItemFieldSingleSelectValue {
+                              name
+                              field {
+                                ... on ProjectV2SingleSelectField {
+                                  name
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      pageInfo {
+                        hasNextPage
+                        endCursor
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            async function readProject(issueId) {
+              let cursor = null;
+              let statusField = null;
+
+              do {
+                const response = await github.graphql(projectQuery, {
+                  project: projectId,
+                  cursor
+                });
+                const project = response.node;
+
+                if (!project) {
+                  throw new Error(`Project를 찾을 수 없습니다: ${projectId}`);
+                }
+
+                statusField ??= project.fields.nodes.find(
+                  (field) => field.name === statusFieldName
+                );
+
+                if (!statusField) {
+                  throw new Error(`상태 필드를 찾을 수 없습니다: ${statusFieldName}`);
+                }
+
+                const item = project.items.nodes.find(
+                  (candidate) => candidate.content?.id === issueId
+                );
+                if (item) {
+                  return { statusField, item };
+                }
+
+                cursor = project.items.pageInfo.hasNextPage
+                  ? project.items.pageInfo.endCursor
+                  : null;
+              } while (cursor);
+
+              return { statusField, item: null };
+            }
+
+            function currentStatus(item) {
+              return item.fieldValues.nodes.find(
+                (value) => value.field?.name === statusFieldName
+              )?.name ?? null;
+            }
+
+            async function addProjectItem(issueId) {
+              const response = await github.graphql(`
+                mutation($project: ID!, $content: ID!) {
+                  addProjectV2ItemById(input: { projectId: $project, contentId: $content }) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                project: projectId,
+                content: issueId
+              });
+
+              return response.addProjectV2ItemById.item;
+            }
+
+            async function setStatus(itemId, statusField, statusName) {
+              const option = statusField.options.find(
+                (candidate) => candidate.name === statusName
+              );
+
+              if (!option) {
+                throw new Error(`상태 옵션을 찾을 수 없습니다: ${statusName}`);
+              }
+
+              await github.graphql(`
+                mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $project
+                    itemId: $item
+                    fieldId: $field
+                    value: { singleSelectOptionId: $option }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                project: projectId,
+                item: itemId,
+                field: statusField.id,
+                option: option.id
+              });
+            }
+
+            async function synchronizeIssue(issue) {
+              if (issue.pull_request || issue.state === 'closed') {
+                core.info(`#${issue.number}은(는) Pull Request이거나 종료된 이슈라 건너뜁니다.`);
+                return;
+              }
+
+              let { statusField, item } = await readProject(issue.node_id);
+              const desiredStatus = ['opened', 'reopened'].includes(mode)
+                ? todoStatus
+                : inProgressStatus;
+
+              if (item && ['comment', 'push'].includes(mode) && currentStatus(item) === doneStatus) {
+                core.info(`#${issue.number}은(는) ${doneStatus} 상태이므로 변경하지 않습니다.`);
+                return;
+              }
+
+              let added = false;
+              if (!item) {
+                try {
+                  item = await addProjectItem(issue.node_id);
+                  added = true;
+                } catch (error) {
+                  const refreshed = await readProject(issue.node_id);
+                  statusField = refreshed.statusField;
+                  item = refreshed.item;
+
+                  if (!item) {
+                    throw error;
+                  }
+                }
+              }
+
+              if (!added && currentStatus(item) === desiredStatus) {
+                core.info(`#${issue.number}은(는) 이미 ${desiredStatus} 상태입니다.`);
+                return;
+              }
+
+              await setStatus(item.id, statusField, desiredStatus);
+              core.info(`#${issue.number}을(를) ${desiredStatus} 상태로 동기화했습니다.`);
+            }
+
+            async function getIssue(issueNumber) {
+              const { data } = await github.rest.issues.get({
+                owner,
+                repo,
+                issue_number: Number(issueNumber)
+              });
+              return data;
+            }
+
+            if (['opened', 'reopened', 'comment'].includes(mode)) {
+              if (!process.env.ISSUE_NUMBER) {
+                core.setFailed('이슈 이벤트에는 issue_number 입력이 필요합니다.');
+                return;
+              }
+
+              const issue = await getIssue(process.env.ISSUE_NUMBER);
+              await synchronizeIssue(issue);
+              return;
+            }
+
+            let commits;
+            try {
+              commits = JSON.parse(process.env.COMMIT_MESSAGES || '[]');
+            } catch {
+              core.setFailed('commit_messages 입력은 유효한 JSON 배열이어야 합니다.');
+              return;
+            }
+
+            const issueNumbers = new Set();
+            const referencePattern = /(?:^|[\s(])(?:refs?|references?|fix(?:es|ed)?|closes?|closed|resolves?|resolved)\s+#(\d+)\b/gi;
+
+            for (const commit of commits) {
+              const message = typeof commit === 'string' ? commit : commit.message;
+              if (typeof message !== 'string') {
+                continue;
+              }
+
+              for (const match of message.matchAll(referencePattern)) {
+                issueNumbers.add(match[1]);
+              }
+            }
+
+            if (issueNumbers.size === 0) {
+              core.info('이슈 참조 커밋이 없어 Project 상태를 변경하지 않습니다.');
+              return;
+            }
+
+            for (const issueNumber of issueNumbers) {
+              const issue = await getIssue(issueNumber);
+              await synchronizeIssue(issue);
+            }
