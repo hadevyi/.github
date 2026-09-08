@@ -1,0 +1,52 @@
+name: Dependabot 병합 후 배포
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+concurrency:
+  group: dependabot-pages-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 병합과 기존 배포를 확인한 뒤 Pages 실행
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            if (run.event !== 'pull_request' || run.head_repository?.full_name !== `${owner}/${repo}`) return;
+            const prs = await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit,
+              { owner, repo, commit_sha: run.head_sha, per_page: 100 });
+            for (const candidate of prs) {
+              if (candidate.user.login !== 'dependabot[bot]' || candidate.base.ref !== 'main' ||
+                  candidate.base.repo.full_name !== `${owner}/${repo}`) continue;
+              let { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: candidate.number });
+              if (!pr.merged_at && !pr.auto_merge) continue;
+              for (let attempt = 0; !pr.merged_at && pr.auto_merge && attempt < 12; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                ({ data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: candidate.number }));
+              }
+              if (!pr.merged_at) {
+                core.info('아직 병합되지 않았습니다. 후속 검사 완료 또는 수동 병합 시 다시 확인합니다.');
+                continue;
+              }
+              const { data: branch } = await github.rest.repos.getBranch({ owner, repo, branch: 'main' });
+              const { data: existing } = await github.rest.actions.listWorkflowRuns({ owner, repo,
+                workflow_id: 'deploy.yml', head_sha: branch.commit.sha, per_page: 100 });
+              if (existing.workflow_runs.some(item => item.status !== 'completed' || item.conclusion === 'success')) {
+                core.info('현재 main의 배포가 이미 실행 중이거나 성공했습니다.');
+                return;
+              }
+              await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: 'deploy.yml', ref: 'main' });
+              core.info(`병합된 Dependabot PR #${pr.number} 확인 후 main 배포를 요청했습니다.`);
+              return;
+            }

@@ -9,6 +9,7 @@
 | Astro Pages 배포 | `reusable-astro-pages.yml` | Astro 빌드와 GitHub Pages 배포 |
 | 담당자 지정 | `reusable-issue-auto-assign.yml`, `reusable-pull-request-auto-assign.yml` | 담당자가 없을 때만 지정 |
 | Discord | `reusable-discord-notify.yml` | Issue·댓글·Dependabot·Workflow 알림 |
+| 자동 병합 후 배포 | `reusable-deploy-after-dependabot.yml` | 병합 확인 후 기존 Pages 실행, 중복 배포 방지 |
 | Node CI | `reusable-node-ci.yml` | `npm run check`·`npm run build` 필수 실행 |
 | PDF 검사 | `reusable-output-validation.yml` | 존재·빈 파일·헤더 검사 |
 | Dependabot | `reusable-dependabot-auto-merge.yml` | 필수 CI 구성 후 Minor·Patch 자동 병합 |
