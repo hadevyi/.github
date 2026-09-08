@@ -1,0 +1,31 @@
+---
+name: Node.js CI
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 저장소 Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      with:
+        persist-credentials: false
+    - name: Node.js 설정
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+      with:
+        node-version: "${{ inputs.node-version }}"
+        cache: npm
+        cache-dependency-path: "${{ vars.NPM_LOCKFILE || 'package-lock.json' }}"
+    - name: 의존성 설치
+      run: npm ci
+    - name: 저장소 검사 실행
+      run: |
+        npm run check
+        npm run build
+'on':
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        default: '24'
+        required: false

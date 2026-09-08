@@ -1,0 +1,110 @@
+---
+name: Discord GitHub 알림
+permissions:
+  contents: read
+jobs:
+  notify:
+    if: |-
+      (github.event_name == 'issues') || (github.event_name == 'issue_comment') || (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]') || (github.event_name == 'workflow_run' &&
+        (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'))
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK_URL: "${{ secrets.DISCORD_WEBHOOK_URL }}"
+      DISCORD_WEBHOOK_USERNAME: "${{ inputs.bot-name }}"
+    steps:
+    - name: Discord로 이벤트 전송
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if [[ -z "${DISCORD_WEBHOOK_URL:-}" ]]; then
+          echo "DISCORD_WEBHOOK_URL Secret이 필요합니다." >&2
+          exit 1
+        fi
+
+        case "$GITHUB_EVENT_NAME" in
+          issues)
+            number=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+            title="새 Issue #${number}"
+            description=$(jq -r '.issue.title | .[0:1800]' "$GITHUB_EVENT_PATH")
+            url=$(jq -r '.issue.html_url' "$GITHUB_EVENT_PATH")
+            color=3447003
+            ;;
+          issue_comment)
+            number=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+            if jq -e '.issue.pull_request != null' "$GITHUB_EVENT_PATH" >/dev/null; then
+              target="PR"
+            else
+              target="Issue"
+            fi
+            title="새 ${target} 댓글 #${number}"
+            description=$(jq -r '.comment.body | .[0:1800]' "$GITHUB_EVENT_PATH")
+            url=$(jq -r '.comment.html_url' "$GITHUB_EVENT_PATH")
+            color=10181046
+            ;;
+          pull_request)
+            number=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+            action=$(jq -r '.action' "$GITHUB_EVENT_PATH")
+            title="Dependabot PR #${number} · ${action}"
+            description=$(jq -r '.pull_request.title | .[0:1800]' "$GITHUB_EVENT_PATH")
+            url=$(jq -r '.pull_request.html_url' "$GITHUB_EVENT_PATH")
+            color=5763719
+            ;;
+          workflow_run)
+            workflow_name=$(jq -r '.workflow_run.name' "$GITHUB_EVENT_PATH")
+            conclusion=$(jq -r '.workflow_run.conclusion' "$GITHUB_EVENT_PATH")
+            branch=$(jq -r '.workflow_run.head_branch // "알 수 없음"' "$GITHUB_EVENT_PATH")
+            event=$(jq -r '.workflow_run.event' "$GITHUB_EVENT_PATH")
+            url=$(jq -r '.workflow_run.html_url' "$GITHUB_EVENT_PATH")
+            if [[ "$conclusion" == "success" ]]; then
+              title="Action 성공 · ${workflow_name}"
+              color=3066993
+            else
+              title="Action 실패 · ${workflow_name}"
+              color=15158332
+            fi
+            description="브랜치: ${branch} · 이벤트: ${event}"
+            ;;
+          *)
+            echo "지원하지 않는 이벤트: $GITHUB_EVENT_NAME" >&2
+            exit 1
+            ;;
+        esac
+
+        payload=$(jq -n \
+          --arg username "$DISCORD_WEBHOOK_USERNAME" \
+          --arg title "$title" \
+          --arg description "$description" \
+          --arg url "$url" \
+          --arg repository "$GITHUB_REPOSITORY" \
+          --arg actor "$(jq -r '.workflow_run.actor.login // .sender.login // env.GITHUB_ACTOR' "$GITHUB_EVENT_PATH")" \
+          --argjson color "$color" \
+          '{
+            username: $username,
+            allowed_mentions: {parse: []},
+            embeds: [{
+              title: $title,
+              description: $description,
+              url: $url,
+              color: $color,
+              fields: [
+                {name: "저장소", value: $repository, inline: true},
+                {name: "작성자", value: $actor, inline: true}
+              ]
+            }]
+          }')
+
+        curl --fail-with-body --silent --show-error \
+          --retry 2 \
+          --header 'Content-Type: application/json' \
+          --data-binary "$payload" \
+          "$DISCORD_WEBHOOK_URL"
+'on':
+  workflow_call:
+    inputs:
+      bot-name:
+        type: string
+        required: true
+    secrets:
+      DISCORD_WEBHOOK_URL:
+        required: true

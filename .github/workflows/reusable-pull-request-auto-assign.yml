@@ -1,0 +1,32 @@
+---
+name: PR 담당자 자동 지정
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      GH_REPO: "${{ github.repository }}"
+      PR_NUMBER: "${{ github.event.pull_request.number }}"
+      ASSIGNEES: "${{ vars.PR_ASSIGNEES || github.repository_owner }}"
+    steps:
+    - name: 담당자가 없는 PR에 담당자 지정
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if jq -e '.pull_request.assignees | length > 0' "$GITHUB_EVENT_PATH" >/dev/null; then
+          exit 0
+        fi
+
+        IFS=',' read -ra assignees <<<"$ASSIGNEES"
+        for assignee in "${assignees[@]}"; do
+          assignee="${assignee//[[:space:]]/}"
+          if [[ -n "$assignee" ]]; then
+            gh pr edit "$PR_NUMBER" --add-assignee "$assignee"
+          fi
+        done
+'on':
+  workflow_call: {}

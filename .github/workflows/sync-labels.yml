@@ -1,28 +1,27 @@
+---
 name: Sync shared labels
-
-on:
+'on':
   workflow_dispatch:
     inputs:
       mode:
-        description: 미리보기 또는 생성·갱신 적용
         type: choice
+        options:
+        - preview
+        - apply
         default: preview
-        options: [preview, apply]
       issue_number:
-        description: 적용 시 같은 저장소의 관련 열린 Issue 번호
         type: string
         required: false
   schedule:
-    - cron: "8 9 13 * *"
-      timezone: "Asia/Seoul"
-
+  - cron: 8 9 13 * *
+    timezone: Asia/Seoul
 permissions:
   issues: write
-
 jobs:
   sync:
-    uses: ./.github/workflows/reusable-sync-labels.yml
+    uses: "./.github/workflows/reusable-sync-labels.yml"
     with:
       profile: github-governance
-      mode: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'preview' }}
-      issue_number: ${{ inputs.issue_number || '' }}
+      mode: "${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'preview'
+        }}"
+      issue_number: "${{ inputs.issue_number || '' }}"

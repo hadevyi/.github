@@ -1,0 +1,37 @@
+name: 문서 작업
+description: 문서의 변경 목적과 반영 범위를 기록합니다.
+title: "[문서] "
+labels:
+- type:문서
+body:
+- type: markdown
+  attributes:
+    value: 같은 목적의 열린 Issue를 먼저 확인하고 저장소 정책에 맞는 추가 라벨을 지정해 주세요.
+- type: textarea
+  id: document
+  attributes:
+    description: 대상 문서에 관한 내용을 구체적으로 적어 주세요.
+    label: 대상 문서
+  validations:
+    required: true
+- type: textarea
+  id: purpose
+  attributes:
+    description: 목적에 관한 내용을 구체적으로 적어 주세요.
+    label: 목적
+  validations:
+    required: true
+- type: textarea
+  id: changes
+  attributes:
+    description: 반영 내용에 관한 내용을 구체적으로 적어 주세요.
+    label: 반영 내용
+  validations:
+    required: true
+- type: textarea
+  id: references
+  attributes:
+    description: 참고 자료에 관한 내용을 구체적으로 적어 주세요.
+    label: 참고 자료
+  validations:
+    required: false

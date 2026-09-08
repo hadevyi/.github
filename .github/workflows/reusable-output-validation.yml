@@ -1,0 +1,57 @@
+---
+name: 결과물 검증
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      OUTPUT_PATHS: "${{ vars.OUTPUT_PATHS || 'public/downloads/*.pdf' }}"
+    steps:
+    - name: 저장소 Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      with:
+        persist-credentials: false
+    - name: 필수 결과물 확인
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        checked=0
+        while IFS= read -r pattern; do
+          pattern="${pattern#"${pattern%%[![:space:]]*}"}"
+          pattern="${pattern%"${pattern##*[![:space:]]}"}"
+          [[ -z "$pattern" ]] && continue
+
+          if [[ "$pattern" == /* || "$pattern" == *".."* ]]; then
+            echo "저장소 내부의 상대 경로만 사용할 수 있습니다: $pattern" >&2
+            exit 1
+          fi
+
+          matched=0
+          while IFS= read -r output; do
+            matched=$((matched + 1))
+            if [[ ! -f "$output" || ! -s "$output" ]]; then
+              echo "비어 있거나 파일이 아닌 결과물입니다: $output" >&2
+              exit 1
+            fi
+            if [[ "$output" == *.pdf && "$(head -c 5 "$output")" != "%PDF-" ]]; then
+              echo "PDF 헤더가 올바르지 않습니다: $output" >&2
+              exit 1
+            fi
+            echo "확인 완료: $output"
+            checked=$((checked + 1))
+          done < <(compgen -G "$pattern" || true)
+
+          if [[ $matched -eq 0 ]]; then
+            echo "결과물을 찾을 수 없습니다: $pattern" >&2
+            exit 1
+          fi
+        done <<<"$OUTPUT_PATHS"
+
+        if [[ $checked -eq 0 ]]; then
+          echo "검사할 결과물 경로가 필요합니다." >&2
+          exit 1
+        fi
+'on':
+  workflow_call: {}
