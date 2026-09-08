@@ -1,0 +1,44 @@
+name: CI/CD 작업
+description: CI/CD와 GitHub Actions 변경을 기록합니다.
+title: "[CI/CD] "
+labels:
+- type:CI/CD
+body:
+- type: markdown
+  attributes:
+    value: 같은 목적의 열린 Issue를 먼저 확인하고 저장소 정책에 맞는 추가 라벨을 지정해 주세요.
+- type: textarea
+  id: workflow
+  attributes:
+    description: Workflow에 관한 내용을 구체적으로 적어 주세요.
+    label: Workflow
+  validations:
+    required: true
+- type: textarea
+  id: trigger
+  attributes:
+    description: 실행 조건에 관한 내용을 구체적으로 적어 주세요.
+    label: 실행 조건
+  validations:
+    required: true
+- type: textarea
+  id: permissions
+  attributes:
+    description: 권한에 관한 내용을 구체적으로 적어 주세요.
+    label: 권한
+  validations:
+    required: true
+- type: textarea
+  id: verification
+  attributes:
+    description: 검증에 관한 내용을 구체적으로 적어 주세요.
+    label: 검증
+  validations:
+    required: true
+- type: textarea
+  id: references
+  attributes:
+    description: 참고 자료에 관한 내용을 구체적으로 적어 주세요.
+    label: 참고 자료
+  validations:
+    required: false

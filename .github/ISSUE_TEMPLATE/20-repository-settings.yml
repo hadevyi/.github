@@ -1,0 +1,44 @@
+name: 저장소 설정
+description: 브랜치, Pages, 템플릿과 저장소 설정을 기록합니다.
+title: "[저장소 설정] "
+labels:
+- type:설정
+body:
+- type: markdown
+  attributes:
+    value: 같은 목적의 열린 Issue를 먼저 확인하고 저장소 정책에 맞는 추가 라벨을 지정해 주세요.
+- type: textarea
+  id: setting
+  attributes:
+    description: 대상 설정에 관한 내용을 구체적으로 적어 주세요.
+    label: 대상 설정
+  validations:
+    required: true
+- type: textarea
+  id: purpose
+  attributes:
+    description: 목적에 관한 내용을 구체적으로 적어 주세요.
+    label: 목적
+  validations:
+    required: true
+- type: textarea
+  id: current-state
+  attributes:
+    description: 현재 상태에 관한 내용을 구체적으로 적어 주세요.
+    label: 현재 상태
+  validations:
+    required: true
+- type: textarea
+  id: completion-criteria
+  attributes:
+    description: 완료 기준에 관한 내용을 구체적으로 적어 주세요.
+    label: 완료 기준
+  validations:
+    required: true
+- type: textarea
+  id: references
+  attributes:
+    description: 참고 자료에 관한 내용을 구체적으로 적어 주세요.
+    label: 참고 자료
+  validations:
+    required: false

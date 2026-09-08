@@ -1,0 +1,25 @@
+---
+name: Dependabot 조건부 자동 병합
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  enable-auto-merge:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && vars.DEPENDABOT_AUTO_MERGE
+      == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dependabot 업데이트 정보 확인
+      id: metadata
+      uses: dependabot/fetch-metadata@d7267f607e9d3fb96fc2fbe83e0af444713e90b7
+      with:
+        github-token: "${{ secrets.GITHUB_TOKEN }}"
+    - name: Patch와 Minor 업데이트 자동 병합 예약
+      if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type
+        == 'version-update:semver-minor'
+      env:
+        GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        PR_URL: "${{ github.event.pull_request.html_url }}"
+      run: gh pr merge --auto --merge "$PR_URL"
+'on':
+  workflow_call: {}

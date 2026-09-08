@@ -7,7 +7,11 @@
 | 워크플로 | 중앙 파일 | 용도 |
 |---|---|---|
 | Astro Pages 배포 | `reusable-astro-pages.yml` | Astro 빌드와 GitHub Pages 배포 |
-| 신규 이슈 자동 배정 | `reusable-auto-assign.yml` | 새 이슈를 `hadevyi`에게 자동 배정 |
+| 담당자 지정 | `reusable-issue-auto-assign.yml`, `reusable-pull-request-auto-assign.yml` | 담당자가 없을 때만 지정 |
+| Discord | `reusable-discord-notify.yml` | Issue·댓글·Dependabot·Workflow 알림 |
+| Node CI | `reusable-node-ci.yml` | `npm run check`·`npm run build` 필수 실행 |
+| PDF 검사 | `reusable-output-validation.yml` | 존재·빈 파일·헤더 검사 |
+| Dependabot | `reusable-dependabot-auto-merge.yml` | 필수 CI 구성 후 Minor·Patch 자동 병합 |
 | 공통 라벨 동기화 | `reusable-sync-labels.yml` | 공통·프로필별 라벨 미리보기·생성·갱신 |
 | Project 이슈 상태 동기화 | `reusable-project-issue-sync.yml` | 다중 저장소 이슈를 지정 Project에 추가하고 상태 갱신 |
 
