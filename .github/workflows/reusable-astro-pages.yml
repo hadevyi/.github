@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
 
       - name: Install, build, and upload site
-        uses: withastro/action@e84f40bd8d2caa9e768ec82ad30dd81f0b280853
+        uses: withastro/action@3eafd002e65cc31b4f0eae0bb05450d521562247
         with:
           path: .
           node-version: ${{ inputs.node-version }}
